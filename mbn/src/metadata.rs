@@ -199,8 +199,6 @@ impl Metadata {
 
     /// Format [`Metadata`] requires knowing the secure boot version, so
     /// `Display` is not implemented for it.
-    ///
-    /// *
     pub fn fmt(&self, f: &mut std::fmt::Formatter<'_>, secboot_ver: u32) -> std::fmt::Result {
         writeln!(f, "Major Version: {}", self.major_version as u32)?;
         writeln!(f, "Minor Version: {}", self.minor_version as u32)?;
