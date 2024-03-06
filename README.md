@@ -1,6 +1,6 @@
 # mbn-rs
 
-Toolkit for parse MBN files.
+Toolkit for parse MBN format.
 
 Basically, it's a Rust rewrite of the relevant parts of [readmbn](https://github.com/openpst/readmbn).
 

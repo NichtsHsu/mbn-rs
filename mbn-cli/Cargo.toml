@@ -8,7 +8,7 @@ documentation.workspace = true
 repository.workspace = true
 readme.workspace = true
 categories.workspace = true
-description = "MBN file parse tool"
+description = "MBN file parse CLI tool"
 
 [[bin]]
 name = "mbn-cli"
