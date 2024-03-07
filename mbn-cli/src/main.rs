@@ -4,7 +4,7 @@ use std::{
 };
 
 use clap::{self, Args, Parser};
-use mbn::{from_elf, HashTableSegment, MbnHeader, Metadata};
+use mbn::{from_elf, HashTableSegment, MbnHeader};
 use x509_parser::{prelude::*, public_key::PublicKey, signature_algorithm::SignatureAlgorithm};
 
 use crate::algo::get_algorithm_name;

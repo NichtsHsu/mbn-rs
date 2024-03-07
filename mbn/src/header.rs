@@ -14,11 +14,11 @@ pub enum MbnImageId {
     None = 0x00,
     OemSbl = 0x01,
     Amss = 0x02,
-    Ocbl = 0x03,
+    Qcsbl = 0x03,
     Hash = 0x04,
-    Appbl = 0x05,
+    Appsbl = 0x05,
     Apps = 0x06,
-    HostDl = 0x07,
+    Hostdl = 0x07,
     Dsp1 = 0x08,
     Fsbl = 0x09,
     Dbl = 0x0A,
@@ -37,12 +37,8 @@ pub enum MbnImageId {
     Rpm = 0x17,
     Sbl3 = 0x18,
     Tz = 0x19,
-    SsdKeys = 0x1A,
-    Gen = 0x1B,
-    Dsp3 = 0x1C,
-    Acdb = 0x1D,
-    Wdt = 0x1E,
-    Mba = 0x1F,
+    /* 0x1A - 0x1F Deprecated */
+    Psi = 0x20,
 }
 
 /// MBN header version 3 (40 bytes) representation.
@@ -314,38 +310,115 @@ impl MbnHeader {
 impl std::fmt::Display for MbnImageId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            MbnImageId::None => write!(f, "None ({:#x})", *self as u32),
-            MbnImageId::OemSbl => write!(f, "OemSbl ({:#x})", *self as u32),
-            MbnImageId::Amss => write!(f, "Amss ({:#x})", *self as u32),
-            MbnImageId::Ocbl => write!(f, "Ocbl ({:#x})", *self as u32),
-            MbnImageId::Hash => write!(f, "Hash ({:#x})", *self as u32),
-            MbnImageId::Appbl => write!(f, "Appbl ({:#x})", *self as u32),
-            MbnImageId::Apps => write!(f, "Apps ({:#x})", *self as u32),
-            MbnImageId::HostDl => write!(f, "HostDl ({:#x})", *self as u32),
-            MbnImageId::Dsp1 => write!(f, "Dsp1 ({:#x})", *self as u32),
-            MbnImageId::Fsbl => write!(f, "Fsbl ({:#x})", *self as u32),
-            MbnImageId::Dbl => write!(f, "Dbl ({:#x})", *self as u32),
-            MbnImageId::Osbl => write!(f, "Osbl ({:#x})", *self as u32),
-            MbnImageId::Dsp2 => write!(f, "Dsp2 ({:#x})", *self as u32),
-            MbnImageId::Ehostdl => write!(f, "Ehostdl ({:#x})", *self as u32),
-            MbnImageId::Nandprg => write!(f, "Nandprg ({:#x})", *self as u32),
-            MbnImageId::Norprg => write!(f, "Norprg ({:#x})", *self as u32),
-            MbnImageId::Ramfs1 => write!(f, "Ramfs1 ({:#x})", *self as u32),
-            MbnImageId::Ramfs2 => write!(f, "Ramfs2 ({:#x})", *self as u32),
-            MbnImageId::AdspQ5 => write!(f, "AdspQ5 ({:#x})", *self as u32),
-            MbnImageId::AppsKernel => write!(f, "AppsKernel ({:#x})", *self as u32),
-            MbnImageId::BackupRamfs => write!(f, "BackupRamfs ({:#x})", *self as u32),
-            MbnImageId::Sbl1 => write!(f, "Sbl1 ({:#x})", *self as u32),
-            MbnImageId::Sbl2 => write!(f, "Sbl2 ({:#x})", *self as u32),
-            MbnImageId::Rpm => write!(f, "Rpm ({:#x})", *self as u32),
-            MbnImageId::Sbl3 => write!(f, "Sbl3 ({:#x})", *self as u32),
-            MbnImageId::Tz => write!(f, "Tz ({:#x})", *self as u32),
-            MbnImageId::SsdKeys => write!(f, "SsdKeys ({:#x})", *self as u32),
-            MbnImageId::Gen => write!(f, "Gen ({:#x})", *self as u32),
-            MbnImageId::Dsp3 => write!(f, "Dsp3 ({:#x})", *self as u32),
-            MbnImageId::Acdb => write!(f, "Acdb ({:#x})", *self as u32),
-            MbnImageId::Wdt => write!(f, "Wdt ({:#x})", *self as u32),
-            MbnImageId::Mba => write!(f, "Mba ({:#x})", *self as u32),
+            MbnImageId::None => write!(f, "NONE ({:#x})", *self as u32),
+            MbnImageId::OemSbl => write!(
+                f,
+                "OEM-SBL ({:#x}) - OEM Secondary Boot Loader Image",
+                *self as u32
+            ),
+            MbnImageId::Amss => write!(
+                f,
+                "AMSS ({:#x}) - Advanced Mobile Subscriber Software Image",
+                *self as u32
+            ),
+            MbnImageId::Qcsbl => write!(
+                f,
+                "QCSBL ({:#x}) - Qualcomm Secondary Boot Loader Image",
+                *self as u32
+            ),
+            MbnImageId::Hash => write!(f, "HASH ({:#x}) - Hash Image", *self as u32),
+            MbnImageId::Appsbl => write!(
+                f,
+                "APPSBL ({:#x}) - Applications Boot Loader Image",
+                *self as u32
+            ),
+            MbnImageId::Apps => write!(f, "APPS ({:#x}) - Applications Image", *self as u32),
+            MbnImageId::Hostdl => write!(f, "HOSTDL ({:#x}) - Host Download Image", *self as u32),
+            MbnImageId::Dsp1 => write!(
+                f,
+                "DSP1 ({:#x}) - Digital Signal Processor 1 Image",
+                *self as u32
+            ),
+            MbnImageId::Fsbl => write!(
+                f,
+                "FSBL ({:#x}) - Fail Safe Boot Loader Image",
+                *self as u32
+            ),
+            MbnImageId::Dbl => write!(f, "DBL ({:#x}) - Device Boot Loader Image", *self as u32),
+            MbnImageId::Osbl => write!(
+                f,
+                "OSBL ({:#x}) - Operating System Boot Loader Image",
+                *self as u32
+            ),
+            MbnImageId::Dsp2 => write!(
+                f,
+                "DSP2 ({:#x}) - Digital Signal Processor 2 Image",
+                *self as u32
+            ),
+            MbnImageId::Ehostdl => write!(
+                f,
+                "EHOSTDL ({:#x}) - Emergency Host Download Image",
+                *self as u32
+            ),
+            MbnImageId::Nandprg => {
+                write!(f, "NANDPRG ({:#x}) - NAND Programmer IMage", *self as u32)
+            }
+            MbnImageId::Norprg => write!(f, "NORPRG ({:#x}) - NOR Programmer Image", *self as u32),
+            MbnImageId::Ramfs1 => {
+                write!(f, "RAMFS1 ({:#x}) - RAM File System 1 Image", *self as u32)
+            }
+            MbnImageId::Ramfs2 => {
+                write!(f, "RAMFS2 ({:#x}) - RAM File System 2 Image", *self as u32)
+            }
+            MbnImageId::AdspQ5 => write!(
+                f,
+                "ADSP-Q5 ({:#x} - Application Digital Signal Processor Q5 Image)",
+                *self as u32
+            ),
+            MbnImageId::AppsKernel => write!(
+                f,
+                "APPS-KERNEL ({:#x}) - Applications Kernel Image",
+                *self as u32
+            ),
+            MbnImageId::BackupRamfs => write!(
+                f,
+                "BACKUP-RAMFS ({:#x}) - Backup RAM File System Image",
+                *self as u32
+            ),
+            MbnImageId::Sbl1 => write!(
+                f,
+                "SBL1 ({:#x}) - Secondary Boot Loader 1 Image",
+                *self as u32
+            ),
+            MbnImageId::Sbl2 => write!(
+                f,
+                "SBL2 ({:#x}) - Secondary Boot Loader 2 Image",
+                *self as u32
+            ),
+            MbnImageId::Rpm => write!(
+                f,
+                "RPM ({:#x}) - Resource Power Manager Image",
+                *self as u32
+            ),
+            MbnImageId::Sbl3 => write!(
+                f,
+                "SBL3 ({:#x}) - Secondary Boot Loader 3 Image",
+                *self as u32
+            ),
+            MbnImageId::Tz => write!(f, "TZ ({:#x}) - Trust Zone Image", *self as u32),
+            MbnImageId::Psi => write!(f, "PSI ({:#x}) - PMIC Software Image", *self as u32),
+        }
+    }
+}
+
+impl TryFrom<u32> for MbnImageId {
+    type Error = ParseError;
+
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
+        match value {
+            0..=0x19 => Ok(unsafe { std::mem::transmute(value) }),
+            0x20 => Ok(Self::Psi),
+            _ => Err(ParseError::UnsupportedImageId(value)),
         }
     }
 }
@@ -513,9 +586,7 @@ impl TryFrom<[u8; 40]> for MbnHeaderV3Len40 {
 
     fn try_from(value: [u8; 40]) -> Result<Self, Self::Error> {
         let image_id = u32::from_le_bytes(value[0..4].try_into().unwrap());
-        if image_id > MbnImageId::Mba as u32 {
-            return Err(ParseError::UnsupportedImageId(image_id));
-        }
+        _ = MbnImageId::try_from(image_id)?;
         Ok(unsafe { std::mem::transmute(value) })
     }
 }
@@ -556,9 +627,7 @@ impl TryFrom<[u8; 80]> for MbnHeaderV3Len80 {
 
     fn try_from(value: [u8; 80]) -> Result<Self, Self::Error> {
         let image_id = u32::from_le_bytes(value[0..4].try_into().unwrap());
-        if image_id > MbnImageId::Mba as u32 {
-            return Err(ParseError::UnsupportedImageId(image_id));
-        }
+        _ = MbnImageId::try_from(image_id)?;
         unsafe { std::mem::transmute(value) }
     }
 }
@@ -600,9 +669,7 @@ impl TryFrom<[u8; 40]> for MbnHeaderV5 {
 
     fn try_from(value: [u8; 40]) -> Result<Self, Self::Error> {
         let image_id = u32::from_le_bytes(value[0..4].try_into().unwrap());
-        if image_id > MbnImageId::Mba as u32 {
-            return Err(ParseError::UnsupportedImageId(image_id));
-        }
+        _ = MbnImageId::try_from(image_id)?;
         unsafe { std::mem::transmute(value) }
     }
 }
@@ -642,9 +709,7 @@ impl TryFrom<[u8; 48]> for MbnHeaderV6 {
 
     fn try_from(value: [u8; 48]) -> Result<Self, Self::Error> {
         let image_id = u32::from_le_bytes(value[0..4].try_into().unwrap());
-        if image_id > MbnImageId::Mba as u32 {
-            return Err(ParseError::UnsupportedImageId(image_id));
-        }
+        _ = MbnImageId::try_from(image_id)?;
         unsafe { std::mem::transmute(value) }
     }
 }
