@@ -87,15 +87,8 @@ impl QtiFlags {
 
     /// Debug field.
     ///
-    /// For secure boot v1 and v2:
-    ///
-    /// * 2: `0` is to be written to the one-time debug override registers
-    /// * 3: `1` is to be written to the one-time debug override registers
-    ///
-    /// For secure boot v3 ([`MbnHeaderV6`](crate::MbnHeaderV6)):
-    ///
-    /// * 1: `0` is to be written to the one-time debug override registers
-    /// * 2: `1` is to be written to the one-time debug override registers
+    /// * 1: `0` is to be written to the one-time debug override registers.
+    /// * 2: `1` is to be written to the one-time debug override registers.
     pub fn debug(&self) -> u8 {
         ((self.0 >> 8) & 0b11) as u8
     }
@@ -196,10 +189,10 @@ impl Metadata {
     pub fn as_bytes(&self) -> &[u8; 120] {
         unsafe { &*(self as *const _ as *const [u8; 120]) }
     }
+}
 
-    /// Format [`Metadata`] requires knowing the secure boot version, so
-    /// `Display` is not implemented for it.
-    pub fn fmt(&self, f: &mut std::fmt::Formatter<'_>, secboot_ver: u32) -> std::fmt::Result {
+impl std::fmt::Display for Metadata {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "Major Version: {}", self.major_version as u32)?;
         writeln!(f, "Minor Version: {}", self.minor_version as u32)?;
         writeln!(f, "Software ID: {:#010x}", self.software_id as u32)?;
@@ -242,11 +235,7 @@ impl Metadata {
         writeln!(
             f,
             "JTAG Debug: {} ({:#x})",
-            match secboot_ver {
-                1..=2 => ((self.flags as QtiFlags).debug() == 3).to_string(),
-                3 => ((self.flags as QtiFlags).debug() == 2).to_string(),
-                _ => "/* Unknown Secure Boot Version */".to_string(),
-            },
+            (self.flags as QtiFlags).debug() == 2,
             (self.flags as QtiFlags).debug()
         )?;
         writeln!(

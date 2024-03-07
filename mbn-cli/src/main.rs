@@ -83,16 +83,6 @@ struct Operation {
 const ELF_CODEWORD: u32 = 0x464C457F;
 
 fn run(args: Cli) -> Result<(), mbn::error::ParseError> {
-    struct MetadataWrapper {
-        metadata: Metadata,
-        secboot_ver: u32,
-    }
-    impl std::fmt::Display for MetadataWrapper {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            self.metadata.fmt(f, self.secboot_ver)
-        }
-    }
-
     fn format_hex(raw: &[u8]) -> String {
         raw.iter()
             .fold(String::from("0x"), |s, byte| s + &format!("{:02x}", byte))
@@ -190,13 +180,6 @@ fn run(args: Cli) -> Result<(), mbn::error::ParseError> {
                 println!("==============");
                 println!("# QTI Metadata");
                 println!("==============");
-                let metadata = MetadataWrapper {
-                    metadata: metadata,
-                    secboot_ver: match hash_table_segment.mbn_header {
-                        MbnHeader::V6(_) => 3,
-                        _ => 2,
-                    },
-                };
                 println!("{}", metadata);
                 println!("");
             }
@@ -206,13 +189,6 @@ fn run(args: Cli) -> Result<(), mbn::error::ParseError> {
                 println!("==============");
                 println!("# OEM Metadata");
                 println!("==============");
-                let metadata = MetadataWrapper {
-                    metadata: metadata,
-                    secboot_ver: match hash_table_segment.mbn_header {
-                        MbnHeader::V6(_) => 3,
-                        _ => 2,
-                    },
-                };
                 println!("{}", metadata);
                 println!("");
             }
