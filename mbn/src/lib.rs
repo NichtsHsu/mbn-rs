@@ -6,6 +6,8 @@
 //!
 //! Dump to byte stream, see [`HashTableSegment::dump()`].
 
+#![allow(clippy::len_without_is_empty)]
+
 pub(crate) mod byte_read;
 
 /// Define error types.

@@ -7,6 +7,8 @@ pub use elf::ParseError as ElfError;
 /// The error type for parsing MBN format file.
 #[derive(Debug)]
 pub enum ParseError {
+    /// Length of common metadata is not 24 bytes.
+    CommonMetadataNotAligned(u32),
     /// Length of hash table is not a multiple of 32 or 48,
     /// or hash table does not contain at least 2 entries.
     HashTableNotAligned(u32),
@@ -18,14 +20,12 @@ pub enum ParseError {
     InvalidValue,
     /// I/O Error.
     IO(IOError),
-    /// Length of metadata is not 120.
+    /// Length of metadata is not 120 or 224 bytes.
     MetadataNotAligned(u32),
     /// Cannot find hash table segment.
     NoHashTableSegment,
     /// MBN header version is not supported.
     UnsupportedHeaderVersion(u32),
-    /// MBN image ID is not supported.
-    UnsupportedImageId(u32),
 }
 
 impl From<std::io::Error> for ParseError {
@@ -43,6 +43,9 @@ impl From<elf::ParseError> for ParseError {
 impl std::fmt::Display for ParseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            ParseError::CommonMetadataNotAligned(len) => {
+                write!(f, "Length of common metadata '{}' is not 24 bytes", len)
+            }
             ParseError::HashTableNotAligned(len) => {
                 write!(
                     f,
@@ -58,14 +61,11 @@ impl std::fmt::Display for ParseError {
             ParseError::InvalidValue => write!(f, "Input value is invalid"),
             ParseError::IO(error) => write!(f, "{}", error),
             ParseError::MetadataNotAligned(len) => {
-                write!(f, "Length of metadata '{}' is not 120", len)
+                write!(f, "Length of metadata '{}' is not 120 or 224 bytes", len)
             }
             ParseError::NoHashTableSegment => write!(f, "Cannot find hash table segment"),
             ParseError::UnsupportedHeaderVersion(version) => {
                 write!(f, "MBN header version '{}' is not supported", version)
-            }
-            ParseError::UnsupportedImageId(id) => {
-                write!(f, "MBN image ID '{}' is not supported", id)
             }
         }
     }

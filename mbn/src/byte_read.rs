@@ -51,7 +51,7 @@ impl ByteRead for u8 {
         Ok((
             *(buffer
                 .current()
-                .get(0)
+                .first()
                 .ok_or(ParseError::InputUnexpectedTermination)?),
             1,
         ))

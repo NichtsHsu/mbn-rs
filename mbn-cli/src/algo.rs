@@ -26,6 +26,8 @@ const SHA348_RSA_ENCRYPTION: Oid = oid!(1.2.840 .113549 .1 .1 .12);
 
 const SHA512_RSA_ENCRYPTION: Oid = oid!(1.2.840 .113549 .1 .1 .13);
 
+const EC_PUBLIC_KEY: Oid = oid!(1.2.840 .10045 .2 .1);
+
 pub fn get_algorithm_name(oid: &Oid) -> &'static str {
     if oid == &SHA1 {
         "SHA1"
@@ -53,6 +55,8 @@ pub fn get_algorithm_name(oid: &Oid) -> &'static str {
         "SHA348 Encryption"
     } else if oid == &SHA512_RSA_ENCRYPTION {
         "SHA512 Encryption"
+    } else if oid == &EC_PUBLIC_KEY {
+        "EC Public Key"
     } else {
         "/* Unknown */"
     }

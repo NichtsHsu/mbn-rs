@@ -18,7 +18,7 @@ struct Cli {
     elf: String,
 
     /// Select all contents of hash table segment.
-    /// Equivalent to --header --qti-metadata --metadata --hash-table \
+    /// Equivalent to --header --common-metadata --qti-metadata --metadata --hash-table \
     /// --qti-signature --qti-certificate-chain --signature --certificate-chain.
     /// Enabled by default if none of these are specified.
     #[arg(short, long, verbatim_doc_comment)]
@@ -41,6 +41,10 @@ struct Contents {
     /// Select QTI metadata.
     #[arg(long)]
     qti_metadata: bool,
+
+    // Select common metadata
+    #[arg(long)]
+    common_metadata: bool,
 
     /// Select OEM metadata.
     #[arg(long)]
@@ -103,7 +107,7 @@ fn run(args: Cli) -> Result<(), mbn::error::ParseError> {
                         SignatureAlgorithm::ED25519 => "ED25519",
                     }
                 ));
-                match algo {
+                if let Some(name) = match algo {
                     SignatureAlgorithm::RSASSA_PSS(param) => param
                         .hash_algorithm()
                         .map(|algo| get_algorithm_name(algo.oid())),
@@ -111,8 +115,9 @@ fn run(args: Cli) -> Result<(), mbn::error::ParseError> {
                         .hash_algorithm()
                         .map(|algo| get_algorithm_name(algo.oid())),
                     _ => None,
+                } {
+                    formatted.push(format!("Hash Algorithm: {}", name))
                 }
-                .map(|name| formatted.push(format!("Hash Algorithm: {}", name)));
             }
             Err(error) => println!("/* Failed to parse: {} */", error),
         }
@@ -137,7 +142,7 @@ fn run(args: Cli) -> Result<(), mbn::error::ParseError> {
 
     let mut buffer = [0; 4];
     let mut file = File::open(&args.elf)?;
-    file.read(&mut buffer)?;
+    file.read_exact(&mut buffer)?;
     let codeword = u32::from_le_bytes(buffer);
     let hash_table_segment = if codeword == ELF_CODEWORD {
         from_elf(&args.elf)?
@@ -171,9 +176,23 @@ fn run(args: Cli) -> Result<(), mbn::error::ParseError> {
                     println!("# MBN Header V6");
                     println!("===============");
                 }
+                MbnHeader::V7(_) => {
+                    println!("===============");
+                    println!("# MBN Header V7");
+                    println!("===============");
+                }
             }
             println!("{}", hash_table_segment.mbn_header);
-            println!("");
+            println!();
+        }
+        if args.contents.common_metadata {
+            if let Some(metadata) = hash_table_segment.common_metadata {
+                println!("=================");
+                println!("# Common Metadata");
+                println!("=================");
+                println!("{}", metadata);
+                println!();
+            }
         }
         if args.contents.qti_metadata {
             if let Some(metadata) = hash_table_segment.qti_metadata {
@@ -181,7 +200,7 @@ fn run(args: Cli) -> Result<(), mbn::error::ParseError> {
                 println!("# QTI Metadata");
                 println!("==============");
                 println!("{}", metadata);
-                println!("");
+                println!();
             }
         }
         if args.contents.metadata {
@@ -190,7 +209,7 @@ fn run(args: Cli) -> Result<(), mbn::error::ParseError> {
                 println!("# OEM Metadata");
                 println!("==============");
                 println!("{}", metadata);
-                println!("");
+                println!();
             }
         }
         if args.contents.hash_table {
@@ -202,23 +221,18 @@ fn run(args: Cli) -> Result<(), mbn::error::ParseError> {
                 .iter()
                 .enumerate()
                 .for_each(|(idx, entry)| println!("{:<6}: {}", idx, format_hex(entry.as_bytes())));
-            println!("");
+            println!();
         }
 
         if args.contents.qti_signature || args.contents.qti_certificate_chain {
             let mut raw = &hash_table_segment.qti_certificate_chain as &[u8];
             let mut cert_chain = vec![];
-            loop {
-                match X509Certificate::from_der(raw) {
-                    Ok((remains, cert)) => {
-                        cert_chain.push(cert);
-                        raw = remains;
-                    }
-                    Err(_) => break,
-                }
+            while let Ok((remains, cert)) = X509Certificate::from_der(raw) {
+                cert_chain.push(cert);
+                raw = remains;
             }
 
-            if cert_chain.len() > 0 {
+            if !cert_chain.is_empty() {
                 if args.contents.qti_signature {
                     println!("===============");
                     println!("# QTI Signature");
@@ -231,7 +245,7 @@ fn run(args: Cli) -> Result<(), mbn::error::ParseError> {
                         "{}",
                         format_public_key(cert_chain[0].public_key()).join("\n")
                     );
-                    println!("");
+                    println!();
                 }
                 if args.contents.qti_certificate_chain {
                     println!("=======================");
@@ -252,7 +266,7 @@ fn run(args: Cli) -> Result<(), mbn::error::ParseError> {
                             format_public_key(cert.public_key()).join("\n        ")
                         );
                     });
-                    println!("");
+                    println!();
                 }
             }
         }
@@ -260,17 +274,12 @@ fn run(args: Cli) -> Result<(), mbn::error::ParseError> {
         if args.contents.signature || args.contents.certificate_chain {
             let mut raw = &hash_table_segment.certificate_chain as &[u8];
             let mut cert_chain = vec![];
-            loop {
-                match X509Certificate::from_der(raw) {
-                    Ok((remains, cert)) => {
-                        cert_chain.push(cert);
-                        raw = remains;
-                    }
-                    Err(_) => break,
-                }
+            while let Ok((remains, cert)) = X509Certificate::from_der(raw) {
+                cert_chain.push(cert);
+                raw = remains;
             }
 
-            if cert_chain.len() > 0 {
+            if !cert_chain.is_empty() {
                 if args.contents.signature {
                     println!("===============");
                     println!("# OEM Signature");
@@ -283,7 +292,7 @@ fn run(args: Cli) -> Result<(), mbn::error::ParseError> {
                         "{}",
                         format_public_key(cert_chain[0].public_key()).join("\n")
                     );
-                    println!("");
+                    println!();
                 }
                 if args.contents.certificate_chain {
                     println!("=======================");
@@ -304,7 +313,7 @@ fn run(args: Cli) -> Result<(), mbn::error::ParseError> {
                             format_public_key(cert.public_key()).join("\n        ")
                         );
                     });
-                    println!("");
+                    println!();
                 }
             }
         }
@@ -317,6 +326,11 @@ fn run(args: Cli) -> Result<(), mbn::error::ParseError> {
         } else {
             if args.contents.header {
                 file.write_all(hash_table_segment.mbn_header.as_bytes())?;
+            }
+            if args.contents.common_metadata {
+                if let Some(metadata) = &hash_table_segment.common_metadata {
+                    file.write_all(metadata.as_bytes())?;
+                }
             }
             if args.contents.qti_metadata {
                 if let Some(metadata) = &hash_table_segment.qti_metadata {
@@ -355,6 +369,7 @@ fn main() {
     let mut args = Cli::parse();
 
     if !args.contents.header
+        && !args.contents.common_metadata
         && !args.contents.qti_metadata
         && !args.contents.metadata
         && !args.contents.hash_table
@@ -364,6 +379,7 @@ fn main() {
         && !args.contents.certificate_chain
     {
         args.contents.header = true;
+        args.contents.common_metadata = true;
         args.contents.qti_metadata = true;
         args.contents.metadata = true;
         args.contents.hash_table = true;
@@ -373,6 +389,7 @@ fn main() {
         args.contents.certificate_chain = true;
     }
     if args.contents.header
+        && args.contents.common_metadata
         && args.contents.qti_metadata
         && args.contents.metadata
         && args.contents.hash_table
