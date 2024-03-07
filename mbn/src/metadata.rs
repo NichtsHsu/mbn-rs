@@ -527,7 +527,7 @@ impl std::fmt::Display for CommonMetadata {
         writeln!(f, "Application ID: {:#010x}", { self.app_id })?;
         writeln!(
             f,
-            "Hash Table Algorithm: {} ({:#010x})",
+            "Hash Table Algorithm: {} ({:#x})",
             match self.hash_table_algorithm {
                 2 => "SHA256",
                 3 => "SHA384",
@@ -537,7 +537,7 @@ impl std::fmt::Display for CommonMetadata {
         )?;
         write!(
             f,
-            "Measurement Register: {} ({:#010x})",
+            "Measurement Register: {} ({:#x})",
             match self.measurement_register {
                 0 => "None",
                 1 => "Hardware Measurement Register #1",
@@ -637,7 +637,7 @@ impl std::fmt::Display for MetadataLen120 {
             "Root Certificate Index in MRC (Multiple Root Certificate): {}",
             { self.root_cert_index }
         )?;
-        write!(f, "Anti-Rollback Version: {:#010x}", {
+        write!(f, "Anti-Rollback Version: {:#x}", {
             self.anti_rollback_version
         })
     }
@@ -647,7 +647,7 @@ impl std::fmt::Display for MetadataLen224 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "Major Version: {}", { self.major_version })?;
         writeln!(f, "Minor Version: {}", { self.minor_version })?;
-        writeln!(f, "Anti-Rollback Version: {:#010x}", {
+        writeln!(f, "Anti-Rollback Version: {:#x}", {
             self.anti_rollback_version
         })?;
         writeln!(
@@ -693,7 +693,7 @@ impl std::fmt::Display for MetadataLen224 {
         )?;
         writeln!(
             f,
-            "OEM Root Certificate Hash Algorithm: {} ({:#010x})",
+            "OEM Root Certificate Hash Algorithm: {} ({:#x})",
             match self.oem_root_cert_hash_algorithm {
                 0 => "N/A",
                 2 => "SHA256",
