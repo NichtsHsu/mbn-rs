@@ -9,6 +9,7 @@ pub struct Padding {
     pub len: usize,
 }
 
+/// Entry of hash table.
 #[derive(Clone, Copy, Debug)]
 pub enum HashEntry {
     Sha1([u8; 20]),
