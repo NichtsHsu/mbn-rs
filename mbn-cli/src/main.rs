@@ -201,7 +201,7 @@ fn run(args: Cli) -> Result<(), mbn::error::ParseError> {
                 .hash_table
                 .iter()
                 .enumerate()
-                .for_each(|(idx, entry)| println!("{:<6}: {}", idx, format_hex(entry)));
+                .for_each(|(idx, entry)| println!("{:<6}: {}", idx, format_hex(entry.as_bytes())));
             println!("");
         }
 
@@ -330,7 +330,7 @@ fn run(args: Cli) -> Result<(), mbn::error::ParseError> {
             }
             if args.contents.hash_table {
                 for hash in &hash_table_segment.hash_table {
-                    file.write_all(hash)?;
+                    file.write_all(hash.as_bytes())?;
                 }
             }
             if args.contents.qti_signature {

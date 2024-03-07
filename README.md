@@ -4,6 +4,8 @@ Toolkit for parse MBN format.
 
 Basically, it's a Rust rewrite of the relevant parts of [readmbn](https://github.com/openpst/readmbn).
 
+MBN format information comes from [coreboot](`https://www.coreboot.org/`).
+
 [A library](https://docs.rs/mbn) and a CLI tool are available.
 
 ## Install CLI tool

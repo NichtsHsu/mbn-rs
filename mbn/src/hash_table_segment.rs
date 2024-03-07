@@ -9,6 +9,13 @@ pub struct Padding {
     pub len: usize,
 }
 
+#[derive(Clone, Copy, Debug)]
+pub enum HashEntry {
+    Sha1([u8; 20]),
+    Sha256([u8; 32]),
+    Sha384([u8; 48]),
+}
+
 /// Hash table segment representation.
 #[derive(Clone, Debug)]
 pub struct HashTableSegment {
@@ -19,7 +26,7 @@ pub struct HashTableSegment {
     /// Information about the image supplied by OEM.
     pub metadata: Option<Metadata>,
     /// Hashes of other segments in the ELF file.
-    pub hash_table: Vec<Vec<u8>>,
+    pub hash_table: Vec<HashEntry>,
     /// QTI signature.
     pub qti_signature: Vec<u8>,
     /// QTI certificate chain.
@@ -30,6 +37,16 @@ pub struct HashTableSegment {
     pub certificate_chain: Vec<u8>,
     /// Padding bytes.
     pub padding: Padding,
+}
+
+impl HashEntry {
+    pub fn as_bytes(&self) -> &[u8] {
+        match self {
+            HashEntry::Sha1(entry) => entry,
+            HashEntry::Sha256(entry) => entry,
+            HashEntry::Sha384(entry) => entry,
+        }
+    }
 }
 
 impl HashTableSegment {
@@ -80,52 +97,48 @@ impl HashTableSegment {
             MbnHeader::V5(header) => header.code_size,
             MbnHeader::V6(header) => header.code_size,
         };
-        if code_size < 64 {
-            // The hash table needs to have at least two entries.
-            return Err(ParseError::HashTableNotAligned(code_size));
-        }
-        match (code_size % 48, code_size % 32) {
-            (0, 0) => 'ok: {
-                let first_entry_32 = reader.skip(32)?;
-                let maybe_dummy_32 = reader.skip(32)?;
-                if maybe_dummy_32.iter().all(|x| *x == 0) {
-                    hash_table.reserve(code_size as usize / 32);
-                    hash_table.push(first_entry_32);
-                    hash_table.push(maybe_dummy_32);
-                    for _ in 0..code_size / 32 - 2 {
-                        hash_table.push(reader.skip(32)?);
-                    }
-                    break 'ok;
-                }
-
-                let first_entry_48 = reader.skip(48)?;
-                let maybe_dummy_48 = reader.skip(48)?;
-                if maybe_dummy_48.iter().all(|x| *x == 0) {
-                    hash_table.reserve(code_size as usize / 48);
-                    hash_table.push(first_entry_48);
-                    hash_table.push(maybe_dummy_48);
-                    for _ in 0..code_size / 48 - 2 {
-                        hash_table.push(reader.skip(48)?);
-                    }
-                    break 'ok;
+        let sha_algo = if let MbnHeader::V6(_) = &mbn_header {
+            "SHA384"
+        } else {
+            let maybe_dummy = reader.peek::<[u8; 20]>(20)?;
+            if maybe_dummy.iter().all(|x| *x == 0) {
+                "SHA1"
+            } else {
+                let maybe_dummy = reader.peek::<[u8; 32]>(32)?;
+                if maybe_dummy.iter().all(|x| *x == 0) {
+                    "SHA256"
+                } else {
+                    return Err(ParseError::HashTableNotAligned(code_size));
                 }
             }
-            (0, 1..) => {
-                hash_table.reserve(code_size as usize / 48);
-                for _ in 0..code_size / 48 {
-                    hash_table.push(reader.skip(48)?);
+        };
+        match sha_algo {
+            "SHA1" => {
+                if code_size % 20 != 0 {
+                    return Err(ParseError::HashTableNotAligned(code_size));
+                }
+                for _ in 0..code_size / 20 {
+                    hash_table.push(HashEntry::Sha1(reader.read()?));
                 }
             }
-            (1.., 0) => {
-                hash_table.reserve(code_size as usize / 32);
+            "SHA256" => {
+                if code_size % 32 != 0 {
+                    return Err(ParseError::HashTableNotAligned(code_size));
+                }
                 for _ in 0..code_size / 32 {
-                    hash_table.push(reader.skip(32)?);
+                    hash_table.push(HashEntry::Sha256(reader.read()?));
                 }
             }
-            _ => {
-                return Err(ParseError::HashTableNotAligned(code_size));
+            "SHA384" => {
+                if code_size % 48 != 0 {
+                    return Err(ParseError::HashTableNotAligned(code_size));
+                }
+                for _ in 0..code_size / 48 {
+                    hash_table.push(HashEntry::Sha384(reader.read()?));
+                }
             }
-        }
+            _ => unreachable!(),
+        };
 
         let qti_signature = match &mbn_header {
             MbnHeader::V5(header) => reader.skip(header.qti_signature_size as usize)?,
@@ -186,7 +199,7 @@ impl HashTableSegment {
             writer.write(metadata.as_bytes())?;
         }
         for hash in &self.hash_table {
-            writer.write_all(hash)?;
+            writer.write_all(hash.as_bytes())?;
         }
         writer.write_all(&self.qti_signature)?;
         writer.write_all(&self.qti_certificate_chain)?;
