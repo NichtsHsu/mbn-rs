@@ -4,7 +4,7 @@ Library for parsing MBN format.
 
 Basically, it's a Rust rewrite of the relevant parts of [libopenpst](https://github.com/openpst/libopenpst).
 
-MBN format information comes from [coreboot](`https://www.coreboot.org/`).
+MBN format information comes from [coreboot](https://www.coreboot.org/).
 
 Check out [the documentation page](https://docs.rs/mbn) for details.
 
