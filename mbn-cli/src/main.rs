@@ -14,8 +14,8 @@ mod algo;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
-    /// ELF format Qualcomm signed image path.
-    elf: String,
+    /// MBN file path.
+    mbn: String,
 
     /// Select all contents of hash table segment.
     /// Equivalent to --header --common-metadata --qti-metadata --metadata --hash-table \
@@ -141,11 +141,11 @@ fn run(args: Cli) -> Result<(), mbn::error::ParseError> {
     }
 
     let mut buffer = [0; 4];
-    let mut file = File::open(&args.elf)?;
+    let mut file = File::open(&args.mbn)?;
     file.read_exact(&mut buffer)?;
     let codeword = u32::from_le_bytes(buffer);
     let hash_table_segment = if codeword == ELF_CODEWORD {
-        from_elf(&args.elf)?
+        from_elf(&args.mbn)?
     } else {
         file.seek(SeekFrom::Start(0))?;
         let mut raw = vec![];
