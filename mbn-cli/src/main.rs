@@ -38,13 +38,13 @@ struct Contents {
     #[arg(long)]
     header: bool,
 
+    /// Select common metadata.
+    #[arg(long)]
+    common_metadata: bool,
+
     /// Select QTI metadata.
     #[arg(long)]
     qti_metadata: bool,
-
-    // Select common metadata
-    #[arg(long)]
-    common_metadata: bool,
 
     /// Select OEM metadata.
     #[arg(long)]
