@@ -10,7 +10,11 @@ MBN format information comes from [coreboot](https://www.coreboot.org/).
 
 ## Install CLI tool
 
-The best way is to install it via cargo:
+### Download prebuilt binary
+
+Download prebuilt binary from the [Github release page](https://github.com/NichtsHsu/mbn-rs/releases/latest).
+
+### Install from source
 
 ```bash
 cargo install mbn-cli
