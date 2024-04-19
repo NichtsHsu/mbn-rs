@@ -22,6 +22,6 @@ cargo install mbn-cli
 
 ## CLI tool usage
 
-Just `mbn-cli path/to/mbn/file`, then you can see a lot of information printed on you shell.
+Just `mbn-cli path/to/mbn/file`, then you can see a lot of information printed on your shell.
 
 Check `mbn-cli --help` for detailed usage.
