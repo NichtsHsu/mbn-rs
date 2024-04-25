@@ -48,6 +48,7 @@ pub struct HashTableSegment {
 }
 
 impl HashEntry {
+    /// Convert itself to a slice without copy.
     pub fn as_bytes(&self) -> &[u8] {
         match self {
             HashEntry::Sha1(entry) => entry,
@@ -94,14 +95,11 @@ impl HashTableSegment {
             | MbnHeader::V7(MbnHeaderV7 {
                 qti_metadata_size: qti_metadata_size @ 1..,
                 ..
-            }) => 'ok: {
-                if qti_metadata_size == 120 {
-                    break 'ok Some(Metadata::Len120(reader.read()?));
-                } else if qti_metadata_size == 224 {
-                    break 'ok Some(Metadata::Len224(reader.read()?));
-                }
-                return Err(ParseError::MetadataNotAligned(qti_metadata_size));
-            }
+            }) => match qti_metadata_size {
+                120 => Some(Metadata::Len120(reader.read()?)),
+                224 => Some(Metadata::Len224(reader.read()?)),
+                _ => return Err(ParseError::MetadataNotAligned(qti_metadata_size)),
+            },
             _ => None,
         };
 
@@ -113,14 +111,11 @@ impl HashTableSegment {
             | MbnHeader::V7(MbnHeaderV7 {
                 metadata_size: metadata_size @ 1..,
                 ..
-            }) => 'ok: {
-                if metadata_size == 120 {
-                    break 'ok Some(Metadata::Len120(reader.read()?));
-                } else if metadata_size == 224 {
-                    break 'ok Some(Metadata::Len224(reader.read()?));
-                }
-                return Err(ParseError::MetadataNotAligned(metadata_size));
-            }
+            }) => match metadata_size {
+                120 => Some(Metadata::Len120(reader.read()?)),
+                224 => Some(Metadata::Len224(reader.read()?)),
+                _ => return Err(ParseError::MetadataNotAligned(metadata_size)),
+            },
             _ => None,
         };
 
@@ -134,13 +129,17 @@ impl HashTableSegment {
         };
 
         let sha_algo = 'algo: {
-            if let Some(common_metadata) = &common_metadata {
-                if common_metadata.hash_table_algorithm == 2 {
-                    break 'algo "SHA256";
-                } else if common_metadata.hash_table_algorithm == 3 {
-                    break 'algo "SHA384";
-                }
-            }
+            match common_metadata {
+                Some(CommonMetadata {
+                    hash_table_algorithm: 2,
+                    ..
+                }) => break 'algo "SHA256",
+                Some(CommonMetadata {
+                    hash_table_algorithm: 3,
+                    ..
+                }) => break 'algo "SHA384",
+                _ => (),
+            };
 
             if let MbnHeader::V6(_) = &mbn_header {
                 break 'algo "SHA384";
