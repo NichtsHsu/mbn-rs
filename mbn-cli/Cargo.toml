@@ -7,7 +7,7 @@ license.workspace = true
 documentation.workspace = true
 repository.workspace = true
 readme.workspace = true
-categories.workspace = true
+categories = ["parser-implementations", "command-line-utilities"]
 description = "MBN file parse CLI tool"
 
 [[bin]]

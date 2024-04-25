@@ -9,4 +9,3 @@ readme = "README.md"
 edition = "2021"
 documentation = "https://docs.rs/mbn"
 repository = "https://github.com/NichtsHsu/mbn-rs"
-categories = ["Parser implementations"]

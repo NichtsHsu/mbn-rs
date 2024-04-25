@@ -1,6 +1,9 @@
 //! MBN format parsing library.
 //!
-//! Parse from an ELF file (files with `.mbn` extension are usually ELF file), see [`from_elf()`].
+//! **NOTE**: Extension of files with MBN segment may be `elf`.
+//! Files with extension `mbn` are almost ELF format files.
+//!
+//! Parse from an ELF format file, see [`from_elf()`].
 //!
 //! Parse from byte stream, see [`HashTableSegment::parse()`].
 //!

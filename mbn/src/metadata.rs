@@ -8,10 +8,12 @@ use crate::{
 /// The [`flags`](MetadataLen120::flags) field of [`MetadataLen120`].
 ///
 /// See [`QtiFlagsV6Builder`] for build a [`QtiFlagsV6`].
+#[repr(transparent)]
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct QtiFlagsV6(pub u32);
 
 /// Builder for [`QtiFlagsV6`].
+#[repr(transparent)]
 #[derive(Clone, Copy, Debug, Default)]
 pub struct QtiFlagsV6Builder(u32);
 
@@ -21,10 +23,12 @@ pub struct QtiFlagsV6Builder(u32);
 /// so illegal values may appear in each field.
 ///
 /// See [`QtiFlagsV7Builder`] for build a [`QtiFlagsV7`].
+#[repr(transparent)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct QtiFlagsV7(pub u32);
 
 /// Builder for [`QtiFlagsV7`].
+#[repr(transparent)]
 #[derive(Clone, Copy, Debug, Default)]
 pub struct QtiFlagsV7Builder(u32);
 
@@ -825,6 +829,18 @@ impl From<u32> for QtiFlagsV6 {
 
 impl From<QtiFlagsV6> for u32 {
     fn from(value: QtiFlagsV6) -> Self {
+        value.0
+    }
+}
+
+impl From<u32> for QtiFlagsV7 {
+    fn from(value: u32) -> Self {
+        Self(value)
+    }
+}
+
+impl From<QtiFlagsV7> for u32 {
+    fn from(value: QtiFlagsV7) -> Self {
         value.0
     }
 }

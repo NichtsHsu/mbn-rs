@@ -25,3 +25,5 @@ cargo install mbn-cli
 Just `mbn-cli path/to/mbn/file`, then you can see a lot of information printed on your shell.
 
 Check `mbn-cli --help` for detailed usage.
+
+**NOTE**: Extension of files with MBN segment may be `elf`. Files with extension `mbn` are almost ELF format files.

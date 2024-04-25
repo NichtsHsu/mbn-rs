@@ -5,75 +5,20 @@ use crate::{
     error::ParseError,
 };
 
+/// Image ID representation.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(transparent)]
+pub struct ImageId(pub u32);
+
 /// Magic number of [`MbnHeaderV3Len80`].
 pub const HEADER_V3_MAGIC: u32 = 0x73D71034;
-
-/// Get MBN image ID information.
-pub fn image_id_info(image_id: u32) -> String {
-    match image_id {
-        0 => format!("NONE ({:#x})", image_id),
-        1 => format!(
-            "OEM-SBL ({:#x}) - OEM Secondary Boot Loader Image",
-            image_id
-        ),
-        2 => format!(
-            "AMSS ({:#x}) - Advanced Mobile Subscriber Software Image",
-            image_id
-        ),
-        3 => format!(
-            "QCSBL ({:#x}) - Qualcomm Secondary Boot Loader Image",
-            image_id
-        ),
-        4 => format!("HASH ({:#x}) - Hash Image", image_id),
-        5 => format!("APPSBL ({:#x}) - Applications Boot Loader Image", image_id),
-        6 => format!("APPS ({:#x}) - Applications Image", image_id),
-        7 => format!("HOSTDL ({:#x}) - Host Download Image", image_id),
-        8 => format!("DSP1 ({:#x}) - Digital Signal Processor 1 Image", image_id),
-        9 => format!("FSBL ({:#x}) - Fail Safe Boot Loader Image", image_id),
-        10 => format!("DBL ({:#x}) - Device Boot Loader Image", image_id),
-        11 => format!(
-            "OSBL ({:#x}) - Operating System Boot Loader Image",
-            image_id
-        ),
-        12 => format!("DSP2 ({:#x}) - Digital Signal Processor 2 Image", image_id),
-        13 => format!("EHOSTDL ({:#x}) - Emergency Host Download Image", image_id),
-        14 => {
-            format!("NANDPRG ({:#x}) - NAND Programmer IMage", image_id)
-        }
-        15 => format!("NORPRG ({:#x}) - NOR Programmer Image", image_id),
-        16 => {
-            format!("RAMFS1 ({:#x}) - RAM File System 1 Image", image_id)
-        }
-        17 => {
-            format!("RAMFS2 ({:#x}) - RAM File System 2 Image", image_id)
-        }
-        18 => format!(
-            "ADSP-Q5 ({:#x} - Application Digital Signal Processor Q5 Image)",
-            image_id
-        ),
-        19 => {
-            format!("APPS-KERNEL ({:#x}) - Applications Kernel Image", image_id)
-        }
-        20 => format!(
-            "BACKUP-RAMFS ({:#x}) - Backup RAM File System Image",
-            image_id
-        ),
-        21 => format!("SBL1 ({:#x}) - Secondary Boot Loader 1 Image", image_id),
-        22 => format!("SBL2 ({:#x}) - Secondary Boot Loader 2 Image", image_id),
-        23 => format!("RPM ({:#x}) - Resource Power Manager Image", image_id),
-        24 => format!("SBL3 ({:#x}) - Secondary Boot Loader 3 Image", image_id),
-        25 => format!("TZ ({:#x}) - Trust Zone Image", image_id),
-        32 => format!("PSI ({:#x}) - PMIC Software Image", image_id),
-        _ => format!("/* Unknown */ ({:#x})", image_id),
-    }
-}
 
 /// MBN header version 3 (40 bytes) representation.
 #[repr(packed)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct MbnHeaderV3Len40 {
     /// Identifies the type of image this header represents. In the hash table segment, usually be 0.
-    pub image_id: u32,
+    pub image_id: ImageId,
     /// Header version number.
     pub header_version: u32,
     /// Location of image in flash or e-hostdl in RAM. This is given in byte offset from beginning of flash/RAM.
@@ -103,7 +48,7 @@ pub struct MbnHeaderV3Len80 {
     /// Magic number, see [`HEADER_V3_MAGIC`].
     pub magic: u32,
     /// Identifies the type of image this header represents. In the hash table segment, usually be 0.
-    pub image_id: u32,
+    pub image_id: ImageId,
     _reserved1: u32,
     _reserved2: u32,
     /// Location of image in flash or e-hostdl in RAM. This is given in byte offset from beginning of flash/RAM.
@@ -136,7 +81,7 @@ pub struct MbnHeaderV3Len80 {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct MbnHeaderV5 {
     /// Identifies the type of image this header represents. In the hash table segment, usually be 0.
-    pub image_id: u32,
+    pub image_id: ImageId,
     /// Header version number.
     pub header_version: u32,
     /// Size of the QTI signature in bytes.
@@ -162,7 +107,7 @@ pub struct MbnHeaderV5 {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct MbnHeaderV6 {
     /// Identifies the type of image this header represents. In the hash table segment, usually be 0.
-    pub image_id: u32,
+    pub image_id: ImageId,
     /// Header version number.
     pub header_version: u32,
     /// Size of the QTI signature in bytes.
@@ -192,7 +137,7 @@ pub struct MbnHeaderV6 {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct MbnHeaderV7 {
     /// Identifies the type of image this header represents. In the hash table segment, usually be 0.
-    pub image_id: u32,
+    pub image_id: ImageId,
     /// Header version number.
     pub header_version: u32,
     /// Size of the common metadata in bytes.
@@ -221,6 +166,37 @@ pub enum MbnHeader {
     V5(MbnHeaderV5),
     V6(MbnHeaderV6),
     V7(MbnHeaderV7),
+}
+
+impl ImageId {
+    pub const NONE: ImageId = ImageId(0x00);
+    pub const OEMSBL: ImageId = ImageId(0x01);
+    pub const AMSS: ImageId = ImageId(0x02);
+    pub const QCSBL: ImageId = ImageId(0x03);
+    pub const HASH: ImageId = ImageId(0x04);
+    pub const APPSBL: ImageId = ImageId(0x05);
+    pub const APPS: ImageId = ImageId(0x06);
+    pub const HOSTDL: ImageId = ImageId(0x07);
+    pub const DSP1: ImageId = ImageId(0x08);
+    pub const FSBL: ImageId = ImageId(0x09);
+    pub const DBL: ImageId = ImageId(0x0a);
+    pub const OSBL: ImageId = ImageId(0x0b);
+    pub const DSP2: ImageId = ImageId(0x0c);
+    pub const EHOSTDL: ImageId = ImageId(0x0d);
+    pub const NANDPRG: ImageId = ImageId(0x0e);
+    pub const NORPRG: ImageId = ImageId(0x0f);
+    pub const RAMFS1: ImageId = ImageId(0x10);
+    pub const RAMFS2: ImageId = ImageId(0x11);
+    pub const ADSP_Q5: ImageId = ImageId(0x12);
+    pub const APPS_KERNEL: ImageId = ImageId(0x13);
+    pub const BACKUP_RAMFS: ImageId = ImageId(0x14);
+    pub const SBL1: ImageId = ImageId(0x15);
+    pub const SBL2: ImageId = ImageId(0x16);
+    pub const RPM: ImageId = ImageId(0x17);
+    pub const SBL3: ImageId = ImageId(0x18);
+    pub const TZ: ImageId = ImageId(0x19);
+    /* 0x1a-0x1f deprecated. */
+    pub const PSI: ImageId = ImageId(0x20);
 }
 
 impl MbnHeaderV3Len40 {
@@ -376,34 +352,89 @@ impl MbnHeader {
     }
 }
 
+impl std::fmt::Display for ImageId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            &Self::NONE => write!(f, "NONE ({:#x})", self.0),
+            &Self::OEMSBL => write!(
+                f,
+                "OEM-SBL ({:#x}) - OEM Secondary Boot Loader Image",
+                self.0
+            ),
+            &Self::AMSS => write!(
+                f,
+                "AMSS ({:#x}) - Advanced Mobile Subscriber Software Image",
+                self.0
+            ),
+            &Self::QCSBL => write!(
+                f,
+                "QCSBL ({:#x}) - Qualcomm Secondary Boot Loader Image",
+                self.0
+            ),
+            &Self::HASH => write!(f, "HASH ({:#x}) - Hash Image", self.0),
+            &Self::APPSBL => write!(f, "APPSBL ({:#x}) - Applications Boot Loader Image", self.0),
+            &Self::APPS => write!(f, "APPS ({:#x}) - Applications Image", self.0),
+            &Self::HOSTDL => write!(f, "HOSTDL ({:#x}) - Host Download Image", self.0),
+            &Self::DSP1 => write!(f, "DSP1 ({:#x}) - Digital Signal Processor 1 Image", self.0),
+            &Self::FSBL => write!(f, "FSBL ({:#x}) - Fail Safe Boot Loader Image", self.0),
+            &Self::DBL => write!(f, "DBL ({:#x}) - Device Boot Loader Image", self.0),
+            &Self::OSBL => write!(
+                f,
+                "OSBL ({:#x}) - Operating System Boot Loader Image",
+                self.0
+            ),
+            &Self::DSP2 => write!(f, "DSP2 ({:#x}) - Digital Signal Processor 2 Image", self.0),
+            &Self::EHOSTDL => write!(f, "EHOSTDL ({:#x}) - Emergency Host Download Image", self.0),
+            &Self::NANDPRG => {
+                write!(f, "NANDPRG ({:#x}) - NAND Programmer IMage", self.0)
+            }
+            &Self::NORPRG => write!(f, "NORPRG ({:#x}) - NOR Programmer Image", self.0),
+            &Self::RAMFS1 => {
+                write!(f, "RAMFS1 ({:#x}) - RAM File System 1 Image", self.0)
+            }
+            &Self::RAMFS2 => {
+                write!(f, "RAMFS2 ({:#x}) - RAM File System 2 Image", self.0)
+            }
+            &Self::ADSP_Q5 => write!(
+                f,
+                "ADSP-Q5 ({:#x} - Application Digital Signal Processor Q5 Image)",
+                self.0
+            ),
+            &Self::APPS_KERNEL => {
+                write!(f, "APPS-KERNEL ({:#x}) - Applications Kernel Image", self.0)
+            }
+            &Self::BACKUP_RAMFS => write!(
+                f,
+                "BACKUP-RAMFS ({:#x}) - Backup RAM File System Image",
+                self.0
+            ),
+            &Self::SBL1 => write!(f, "SBL1 ({:#x}) - Secondary Boot Loader 1 Image", self.0),
+            &Self::SBL2 => write!(f, "SBL2 ({:#x}) - Secondary Boot Loader 2 Image", self.0),
+            &Self::RPM => write!(f, "RPM ({:#x}) - Resource Power Manager Image", self.0),
+            &Self::SBL3 => write!(f, "SBL3 ({:#x}) - Secondary Boot Loader 3 Image", self.0),
+            &Self::TZ => write!(f, "TZ ({:#x}) - Trust Zone Image", self.0),
+            &Self::PSI => write!(f, "PSI ({:#x}) - PMIC Software Image", self.0),
+            _ => write!(f, "/* Unknown */ ({:#x})", self.0),
+        }
+    }
+}
+
 impl std::fmt::Display for MbnHeaderV3Len40 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "Image ID: {}", image_id_info(self.image_id))?;
+        writeln!(f, "Image ID: {}", { self.image_id })?;
         writeln!(f, "Header Version: {}", { self.header_version })?;
         writeln!(f, "Image Source: {:#010x}", { self.image_src })?;
         writeln!(f, "Image Destination: {:#010x}", { self.image_dest_ptr })?;
         writeln!(f, "Image Size: {} bytes", { self.image_size })?;
         writeln!(f, "Code Size: {} bytes", { self.code_size })?;
-        writeln!(
-            f,
-            "OEM Signature Pointer: {:#010x}",
-            { self.signature_ptr }
-        )?;
-        writeln!(
-            f,
-            "OEM Signature Size: {} bytes",
-            { self.signature_size }
-        )?;
-        writeln!(
-            f,
-            "OEM Certificate Chain Pointer: {:#010x}",
-            { self.cert_chain_ptr }
-        )?;
-        write!(
-            f,
-            "OEM Certificate Chain Size: {} bytes",
-            { self.cert_chain_size }
-        )
+        writeln!(f, "OEM Signature Pointer: {:#010x}", { self.signature_ptr })?;
+        writeln!(f, "OEM Signature Size: {} bytes", { self.signature_size })?;
+        writeln!(f, "OEM Certificate Chain Pointer: {:#010x}", {
+            self.cert_chain_ptr
+        })?;
+        write!(f, "OEM Certificate Chain Size: {} bytes", {
+            self.cert_chain_size
+        })
     }
 }
 
@@ -411,154 +442,90 @@ impl std::fmt::Display for MbnHeaderV3Len80 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "Flash Type Codeword: {:#010x}", { self.codeword })?;
         writeln!(f, "Magic: {:#010x}", { self.magic })?;
-        writeln!(f, "Image ID: {}", image_id_info(self.image_id))?;
+        writeln!(f, "Image ID: {}", { self.image_id })?;
         writeln!(f, "Image Source: {:#010x}", { self.image_src })?;
         writeln!(f, "Image Destination: {:#010x}", { self.image_dest_ptr })?;
         writeln!(f, "Image Size: {} bytes", { self.image_size })?;
         writeln!(f, "Code Size: {} bytes", { self.code_size })?;
-        writeln!(
-            f,
-            "OEM Signature Pointer: {:#010x}",
-            { self.signature_ptr }
-        )?;
-        writeln!(
-            f,
-            "OEM Signature Size: {} bytes",
-            { self.signature_size }
-        )?;
-        writeln!(
-            f,
-            "OEM Certificate Chain Pointer: {:#010x}",
-            { self.cert_chain_ptr }
-        )?;
-        write!(
-            f,
-            "OEM Certificate Chain Size: {} bytes",
-            { self.cert_chain_size }
-        )
+        writeln!(f, "OEM Signature Pointer: {:#010x}", { self.signature_ptr })?;
+        writeln!(f, "OEM Signature Size: {} bytes", { self.signature_size })?;
+        writeln!(f, "OEM Certificate Chain Pointer: {:#010x}", {
+            self.cert_chain_ptr
+        })?;
+        write!(f, "OEM Certificate Chain Size: {} bytes", {
+            self.cert_chain_size
+        })
     }
 }
 
 impl std::fmt::Display for MbnHeaderV5 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "Image ID: {}", image_id_info(self.image_id))?;
+        writeln!(f, "Image ID: {}", { self.image_id })?;
         writeln!(f, "Header Version: {}", { self.header_version })?;
-        writeln!(
-            f,
-            "QTI Signature Size: {} bytes",
-            { self.qti_signature_size }
-        )?;
-        writeln!(
-            f,
-            "QTI certificate chain size: {} bytes",
-            { self.qti_cert_chain_size }
-        )?;
+        writeln!(f, "QTI Signature Size: {} bytes", {
+            self.qti_signature_size
+        })?;
+        writeln!(f, "QTI certificate chain size: {} bytes", {
+            self.qti_cert_chain_size
+        })?;
         writeln!(f, "Image Size: {} bytes", { self.image_size })?;
         writeln!(f, "Code Size: {} bytes", { self.code_size })?;
-        writeln!(
-            f,
-            "OEM Signature Pointer: {:#010x}",
-            { self.signature_ptr }
-        )?;
-        writeln!(
-            f,
-            "OEM Signature Size: {} bytes",
-            { self.signature_size }
-        )?;
-        writeln!(
-            f,
-            "OEM Certificate Chain Pointer: {:#010x}",
-            { self.cert_chain_ptr }
-        )?;
-        write!(
-            f,
-            "OEM Certificate Chain Size: {} bytes",
-            { self.cert_chain_size }
-        )
+        writeln!(f, "OEM Signature Pointer: {:#010x}", { self.signature_ptr })?;
+        writeln!(f, "OEM Signature Size: {} bytes", { self.signature_size })?;
+        writeln!(f, "OEM Certificate Chain Pointer: {:#010x}", {
+            self.cert_chain_ptr
+        })?;
+        write!(f, "OEM Certificate Chain Size: {} bytes", {
+            self.cert_chain_size
+        })
     }
 }
 
 impl std::fmt::Display for MbnHeaderV6 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "Image ID: {}", image_id_info(self.image_id))?;
+        writeln!(f, "Image ID: {}", { self.image_id })?;
         writeln!(f, "Header Version: {}", { self.header_version })?;
-        writeln!(
-            f,
-            "QTI Signature Size: {} bytes",
-            { self.qti_signature_size }
-        )?;
-        writeln!(
-            f,
-            "QTI certificate chain size: {} bytes",
-            { self.qti_cert_chain_size }
-        )?;
+        writeln!(f, "QTI Signature Size: {} bytes", {
+            self.qti_signature_size
+        })?;
+        writeln!(f, "QTI certificate chain size: {} bytes", {
+            self.qti_cert_chain_size
+        })?;
         writeln!(f, "Image Size: {} bytes", { self.image_size })?;
         writeln!(f, "Code Size: {} bytes", { self.code_size })?;
-        writeln!(
-            f,
-            "OEM Signature Pointer: {:#010x}",
-            { self.signature_ptr }
-        )?;
-        writeln!(
-            f,
-            "OEM Signature Size: {} bytes",
-            { self.signature_size }
-        )?;
-        writeln!(
-            f,
-            "OEM Certificate Chain Pointer: {:#010x}",
-            { self.cert_chain_ptr }
-        )?;
-        writeln!(
-            f,
-            "OEM certificate Chain Size: {} bytes",
-            { self.cert_chain_size }
-        )?;
-        writeln!(
-            f,
-            "QTI Metadata Size: {} bytes",
-            { self.qti_metadata_size }
-        )?;
+        writeln!(f, "OEM Signature Pointer: {:#010x}", { self.signature_ptr })?;
+        writeln!(f, "OEM Signature Size: {} bytes", { self.signature_size })?;
+        writeln!(f, "OEM Certificate Chain Pointer: {:#010x}", {
+            self.cert_chain_ptr
+        })?;
+        writeln!(f, "OEM certificate Chain Size: {} bytes", {
+            self.cert_chain_size
+        })?;
+        writeln!(f, "QTI Metadata Size: {} bytes", { self.qti_metadata_size })?;
         write!(f, "OEM Metadata Size: {} bytes", { self.metadata_size })
     }
 }
 
 impl std::fmt::Display for MbnHeaderV7 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "Image ID: {}", image_id_info(self.image_id))?;
+        writeln!(f, "Image ID: {}", { self.image_id })?;
         writeln!(f, "Header Version: {}", { self.header_version })?;
-        writeln!(
-            f,
-            "Common Metadata Size: {} bytes",
-            { self.common_meta_size }
-        )?;
-        writeln!(
-            f,
-            "QTI Metadata Size: {} bytes",
-            { self.qti_metadata_size }
-        )?;
+        writeln!(f, "Common Metadata Size: {} bytes", {
+            self.common_meta_size
+        })?;
+        writeln!(f, "QTI Metadata Size: {} bytes", { self.qti_metadata_size })?;
         writeln!(f, "OEM Metadata Size: {} bytes", { self.metadata_size })?;
         writeln!(f, "Code Size: {} bytes", { self.code_size })?;
-        writeln!(
-            f,
-            "QTI Signature Size: {} bytes",
-            { self.qti_signature_size }
-        )?;
-        writeln!(
-            f,
-            "QTI certificate chain size: {} bytes",
-            { self.qti_cert_chain_size }
-        )?;
-        writeln!(
-            f,
-            "OEM Signature Size: {} bytes",
-            { self.signature_size }
-        )?;
-        write!(
-            f,
-            "OEM certificate Chain Size: {} bytes",
-            { self.cert_chain_size }
-        )
+        writeln!(f, "QTI Signature Size: {} bytes", {
+            self.qti_signature_size
+        })?;
+        writeln!(f, "QTI certificate chain size: {} bytes", {
+            self.qti_cert_chain_size
+        })?;
+        writeln!(f, "OEM Signature Size: {} bytes", { self.signature_size })?;
+        write!(f, "OEM certificate Chain Size: {} bytes", {
+            self.cert_chain_size
+        })
     }
 }
 
@@ -571,6 +538,18 @@ impl std::fmt::Display for MbnHeader {
             MbnHeader::V6(header) => header.fmt(f),
             MbnHeader::V7(header) => header.fmt(f),
         }
+    }
+}
+
+impl From<u32> for ImageId {
+    fn from(value: u32) -> Self {
+        Self(value)
+    }
+}
+
+impl From<ImageId> for u32 {
+    fn from(value: ImageId) -> Self {
+        value.0
     }
 }
 
