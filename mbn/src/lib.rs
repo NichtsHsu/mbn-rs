@@ -20,6 +20,8 @@ mod hash_table_segment;
 mod header;
 mod metadata;
 
+use std::path::Path;
+
 pub use hash_table_segment::*;
 pub use header::*;
 pub use metadata::*;
@@ -32,9 +34,8 @@ use elf::segment::ProgramHeader;
 use elf::ElfBytes;
 
 /// Parse hash table segment from an ELF format binaries.
-pub fn from_elf(path: &str) -> Result<HashTableSegment> {
+pub fn from_elf<P: AsRef<Path>>(path: P) -> Result<HashTableSegment> {
     pub use error::ParseError;
-    let path = std::path::PathBuf::from(path);
     let file_data = std::fs::read(path)?;
     let file = ElfBytes::<AnyEndian>::minimal_parse(file_data.as_slice())?;
     let all_null_phdrs: Vec<ProgramHeader> = file
