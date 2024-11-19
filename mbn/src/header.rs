@@ -354,66 +354,66 @@ impl MbnHeader {
 
 impl std::fmt::Display for ImageId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            &Self::NONE => write!(f, "NONE ({:#x})", self.0),
-            &Self::OEMSBL => write!(
+        match *self {
+            Self::NONE => write!(f, "NONE ({:#x})", self.0),
+            Self::OEMSBL => write!(
                 f,
                 "OEM-SBL ({:#x}) - OEM Secondary Boot Loader Image",
                 self.0
             ),
-            &Self::AMSS => write!(
+            Self::AMSS => write!(
                 f,
                 "AMSS ({:#x}) - Advanced Mobile Subscriber Software Image",
                 self.0
             ),
-            &Self::QCSBL => write!(
+            Self::QCSBL => write!(
                 f,
                 "QCSBL ({:#x}) - Qualcomm Secondary Boot Loader Image",
                 self.0
             ),
-            &Self::HASH => write!(f, "HASH ({:#x}) - Hash Image", self.0),
-            &Self::APPSBL => write!(f, "APPSBL ({:#x}) - Applications Boot Loader Image", self.0),
-            &Self::APPS => write!(f, "APPS ({:#x}) - Applications Image", self.0),
-            &Self::HOSTDL => write!(f, "HOSTDL ({:#x}) - Host Download Image", self.0),
-            &Self::DSP1 => write!(f, "DSP1 ({:#x}) - Digital Signal Processor 1 Image", self.0),
-            &Self::FSBL => write!(f, "FSBL ({:#x}) - Fail Safe Boot Loader Image", self.0),
-            &Self::DBL => write!(f, "DBL ({:#x}) - Device Boot Loader Image", self.0),
-            &Self::OSBL => write!(
+            Self::HASH => write!(f, "HASH ({:#x}) - Hash Image", self.0),
+            Self::APPSBL => write!(f, "APPSBL ({:#x}) - Applications Boot Loader Image", self.0),
+            Self::APPS => write!(f, "APPS ({:#x}) - Applications Image", self.0),
+            Self::HOSTDL => write!(f, "HOSTDL ({:#x}) - Host Download Image", self.0),
+            Self::DSP1 => write!(f, "DSP1 ({:#x}) - Digital Signal Processor 1 Image", self.0),
+            Self::FSBL => write!(f, "FSBL ({:#x}) - Fail Safe Boot Loader Image", self.0),
+            Self::DBL => write!(f, "DBL ({:#x}) - Device Boot Loader Image", self.0),
+            Self::OSBL => write!(
                 f,
                 "OSBL ({:#x}) - Operating System Boot Loader Image",
                 self.0
             ),
-            &Self::DSP2 => write!(f, "DSP2 ({:#x}) - Digital Signal Processor 2 Image", self.0),
-            &Self::EHOSTDL => write!(f, "EHOSTDL ({:#x}) - Emergency Host Download Image", self.0),
-            &Self::NANDPRG => {
+            Self::DSP2 => write!(f, "DSP2 ({:#x}) - Digital Signal Processor 2 Image", self.0),
+            Self::EHOSTDL => write!(f, "EHOSTDL ({:#x}) - Emergency Host Download Image", self.0),
+            Self::NANDPRG => {
                 write!(f, "NANDPRG ({:#x}) - NAND Programmer IMage", self.0)
             }
-            &Self::NORPRG => write!(f, "NORPRG ({:#x}) - NOR Programmer Image", self.0),
-            &Self::RAMFS1 => {
+            Self::NORPRG => write!(f, "NORPRG ({:#x}) - NOR Programmer Image", self.0),
+            Self::RAMFS1 => {
                 write!(f, "RAMFS1 ({:#x}) - RAM File System 1 Image", self.0)
             }
-            &Self::RAMFS2 => {
+            Self::RAMFS2 => {
                 write!(f, "RAMFS2 ({:#x}) - RAM File System 2 Image", self.0)
             }
-            &Self::ADSP_Q5 => write!(
+            Self::ADSP_Q5 => write!(
                 f,
                 "ADSP-Q5 ({:#x} - Application Digital Signal Processor Q5 Image)",
                 self.0
             ),
-            &Self::APPS_KERNEL => {
+            Self::APPS_KERNEL => {
                 write!(f, "APPS-KERNEL ({:#x}) - Applications Kernel Image", self.0)
             }
-            &Self::BACKUP_RAMFS => write!(
+            Self::BACKUP_RAMFS => write!(
                 f,
                 "BACKUP-RAMFS ({:#x}) - Backup RAM File System Image",
                 self.0
             ),
-            &Self::SBL1 => write!(f, "SBL1 ({:#x}) - Secondary Boot Loader 1 Image", self.0),
-            &Self::SBL2 => write!(f, "SBL2 ({:#x}) - Secondary Boot Loader 2 Image", self.0),
-            &Self::RPM => write!(f, "RPM ({:#x}) - Resource Power Manager Image", self.0),
-            &Self::SBL3 => write!(f, "SBL3 ({:#x}) - Secondary Boot Loader 3 Image", self.0),
-            &Self::TZ => write!(f, "TZ ({:#x}) - Trust Zone Image", self.0),
-            &Self::PSI => write!(f, "PSI ({:#x}) - PMIC Software Image", self.0),
+            Self::SBL1 => write!(f, "SBL1 ({:#x}) - Secondary Boot Loader 1 Image", self.0),
+            Self::SBL2 => write!(f, "SBL2 ({:#x}) - Secondary Boot Loader 2 Image", self.0),
+            Self::RPM => write!(f, "RPM ({:#x}) - Resource Power Manager Image", self.0),
+            Self::SBL3 => write!(f, "SBL3 ({:#x}) - Secondary Boot Loader 3 Image", self.0),
+            Self::TZ => write!(f, "TZ ({:#x}) - Trust Zone Image", self.0),
+            Self::PSI => write!(f, "PSI ({:#x}) - PMIC Software Image", self.0),
             _ => write!(f, "/* Unknown */ ({:#x})", self.0),
         }
     }

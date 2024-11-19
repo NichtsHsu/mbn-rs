@@ -796,8 +796,8 @@ impl std::fmt::Display for MetadataLen224 {
             f,
             "    JTAG Debug: {}",
             match ({ self.flags }).debug() {
-                Ok(false) => format!("Nop (0b01)"),
-                Ok(true) => format!("Disabled (0b10)"),
+                Ok(false) => "Nop (0b01)".to_string(),
+                Ok(true) => "Disabled (0b10)".to_string(),
                 Err(v) => format!("/* Unknown */ ({:#04b})", v),
             }
         )?;
